@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:myshop/ui/screens.dart';
 
+import '../shared/app_drawer.dart';
 import 'products_grid.dart';
 
 enum FilterOptions { favorites, all }
@@ -24,6 +26,7 @@ class _ProductsOverScreenState extends State<ProductsOverviewScreen> {
           buildShoppingCartIcon(),
         ],
       ),
+      drawer: const AppDrawer(),
       body: ProductsGrid(_showOnlyFavorites),
     );
   }
@@ -34,7 +37,7 @@ class _ProductsOverScreenState extends State<ProductsOverviewScreen> {
         Icons.shopping_cart,
       ),
       onPressed: () {
-        print('Go to cart screen');
+        Navigator.of(context).pushNamed(CartScreen.routeName);
       },
     );
   }
