@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-
 import '../../models/product.dart';
 
 class ProductsManager with ChangeNotifier {
