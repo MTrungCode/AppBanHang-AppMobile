@@ -37,6 +37,15 @@ class ProductsManager with ChangeNotifier {
           'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
       isFavorite: true,
     ),
+    Product(
+      id: 'p5',
+      title: 'A Chair',
+      description: 'Sit anywhere you want.',
+      price: 39.99,
+      imageUrl:
+          'https://product.hstatic.net/1000341603/product/ghe-an-cafe-go-soi-co-tay-kennedy-2_0226e3edb99c420185a81f24f9ea86da_master.jpg',
+      isFavorite: false,
+    ),
   ];
 
   int get itemCount {
