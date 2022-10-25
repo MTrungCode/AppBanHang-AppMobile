@@ -19,8 +19,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (ctx) => AuthManager(),
         ),
-        ChangeNotifierProvider(
+        ChangeNotifierProxyProvider<AuthManager, ProductsManager>(
           create: (ctx) => ProductsManager(),
+          update: (ctx, authManager, productManager) {
+            productManager!.authToken = authManager.authToken;
+            return productManager;
+          },
         ),
         ChangeNotifierProvider(
           create: (ctx) => CartManager(),
@@ -29,60 +33,62 @@ class MyApp extends StatelessWidget {
           create: (ctx) => OrdersManager(),
         ),
       ],
-      child: Consumer<AuthManager>(builder: (ctx, authManager, child) {
-        return MaterialApp(
-          title: 'My Shop',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            fontFamily: 'Lato',
-            colorScheme: ColorScheme.fromSwatch(
-              primarySwatch: Colors.purple,
-            ).copyWith(
-              secondary: Colors.deepOrange,
+      child: Consumer<AuthManager>(
+        builder: (ctx, authManager, child) {
+          return MaterialApp(
+            title: 'My Shop',
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              fontFamily: 'Lato',
+              colorScheme: ColorScheme.fromSwatch(
+                primarySwatch: Colors.purple,
+              ).copyWith(
+                secondary: Colors.deepOrange,
+              ),
             ),
-          ),
-          home: authManager.isAuth
-              ? const ProductsOverviewScreen()
-              : FutureBuilder(
-                  future: authManager.tryAutoLogin(),
-                  builder: (ctx, snapshot) {
-                    return snapshot.connectionState == ConnectionState.waiting
-                        ? const SplashScreen()
-                        : const AuthScreen();
+            home: authManager.isAuth
+                ? const ProductsOverviewScreen()
+                : FutureBuilder(
+                    future: authManager.tryAutoLogin(),
+                    builder: (ctx, snapshot) {
+                      return snapshot.connectionState == ConnectionState.waiting
+                          ? const SplashScreen()
+                          : const AuthScreen();
+                    },
+                  ),
+            routes: {
+              CartScreen.routeName: (ctx) => const CartScreen(),
+              OrdersScreen.routeName: (ctx) => const OrdersScreen(),
+              UserProductsScreen.routeName: (ctx) => const UserProductsScreen(),
+            },
+            onGenerateRoute: (settings) {
+              if (settings.name == ProductDetailScreen.routeName) {
+                final productId = settings.arguments as String;
+                return MaterialPageRoute(
+                  builder: (ctx) {
+                    return ProductDetailScreen(
+                      ctx.read<ProductsManager>().findById(productId),
+                    );
                   },
-                ),
-          routes: {
-            CartScreen.routeName: (ctx) => const CartScreen(),
-            OrdersScreen.routeName: (ctx) => const OrdersScreen(),
-            UserProductsScreen.routeName: (ctx) => const UserProductsScreen(),
-          },
-          onGenerateRoute: (settings) {
-            if (settings.name == ProductDetailScreen.routeName) {
-              final productId = settings.arguments as String;
-              return MaterialPageRoute(
-                builder: (ctx) {
-                  return ProductDetailScreen(
-                    ctx.read<ProductsManager>().findById(productId),
-                  );
-                },
-              );
-            }
-            if (settings.name == EditProductScreen.routeName) {
-              final productId = settings.arguments as String?;
-              return MaterialPageRoute(
-                builder: (ctx) {
-                  return EditProductScreen(
-                    productId != null
-                        ? ctx.read<ProductsManager>().findById(productId)
-                        : null,
-                  );
-                },
-              );
-            }
-            return null;
-          },
-        );
-      }),
+                );
+              }
+              if (settings.name == EditProductScreen.routeName) {
+                final productId = settings.arguments as String?;
+                return MaterialPageRoute(
+                  builder: (ctx) {
+                    return EditProductScreen(
+                      productId != null
+                          ? ctx.read<ProductsManager>().findById(productId)
+                          : null,
+                    );
+                  },
+                );
+              }
+              return null;
+            },
+          );
+        },
+      ),
     );
   }
 }
